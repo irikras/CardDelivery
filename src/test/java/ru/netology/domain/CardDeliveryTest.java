@@ -12,8 +12,7 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.withText;
-import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
 
 public class CardDeliveryTest {
 
@@ -29,6 +28,22 @@ public class CardDeliveryTest {
     @Test
     void shouldSubmitRequest() {
         $("[data-test-id=city] input").setValue("Москва");
+        $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
+        String formattedDate = deliveryDate(7);
+        $("[data-test-id=date] input").setValue(formattedDate);
+        $("[data-test-id=name] input").setValue("Иванов Василий");
+        $("[data-test-id=phone] input").setValue("+79270000000");
+        $("[data-test-id=agreement]").click();
+        $(byText("Забронировать")).click();
+        $("[data-test-id=notification] .notification__content")
+                .shouldBe(visible, Duration.ofSeconds(15))
+                .shouldHave(exactText("Встреча успешно забронирована на " + formattedDate));
+    }
+
+    @Test
+    void shouldSubmitRequestWithDropDownCityList() {
+        $("[data-test-id=city] input").setValue("Мо");
+        $$(".menu-item__control").find(exactText("Москва")).click();
         $("[data-test-id=date] input").doubleClick().sendKeys(Keys.BACK_SPACE);
         String formattedDate = deliveryDate(7);
         $("[data-test-id=date] input").setValue(formattedDate);
